@@ -1,22 +1,3 @@
-/**
- * The standard frame sizes actually sold in the UK.
- *
- * Two families that do not line up, which is the whole reason people get this
- * wrong. A-series is the European paper standard and is defined in whole
- * millimetres; imperial photo sizes are defined in whole inches. A4 is
- * 210 x 297mm and 10x8" is 254 x 203mm - near enough in area to look
- * interchangeable on a shelf, and different enough that a print cut for one
- * is visibly wrong in the other.
- *
- * Each size is written in its own native unit and converted once, rather than
- * everything being stored in inches with A4 as 8.268. The definition is the
- * millimetre; the decimal is the derived value.
- *
- * A frame's stated size is the size of the artwork it takes unmounted - which
- * is how they are sold and labelled. "An A3 frame" holds an A3 print, or a
- * smaller print with a mount around it.
- */
-
 import { mmToInches } from "@nasdigitaluk/withnate-tool-core";
 
 export type FrameFamily = "a-series" | "imperial" | "square";
@@ -25,9 +6,9 @@ export interface StandardFrame {
   id: string;
   label: string;
   family: FrameFamily;
-  /** Short edge, inches. */
+
   shortIn: number;
-  /** Long edge, inches. */
+
   longIn: number;
 }
 
@@ -53,7 +34,6 @@ const fromIn = (
   longIn: Math.max(a, b),
 });
 
-/** ISO 216. Each size is the previous one halved across its long edge, so they all share a 1:root-2 ratio. */
 export const A_SERIES: readonly StandardFrame[] = [
   fromMm("a6", "A6", 105, 148),
   fromMm("a5", "A5", 148, 210),
@@ -64,7 +44,6 @@ export const A_SERIES: readonly StandardFrame[] = [
   fromMm("a0", "A0", 841, 1189),
 ];
 
-/** Traditional photo and poster sizes. Note these do not share a single ratio between them. */
 export const IMPERIAL: readonly StandardFrame[] = [
   fromIn("6x4", '6 x 4"', 6, 4),
   fromIn("7x5", '7 x 5"', 7, 5),
@@ -95,5 +74,4 @@ export const ALL_FRAMES: readonly StandardFrame[] = [...A_SERIES, ...IMPERIAL, .
 export const frameById = (id: string): StandardFrame | undefined =>
   ALL_FRAMES.find((f) => f.id === id);
 
-/** Aspect ratio of a frame, long edge over short. Square is 1. */
 export const frameRatio = (f: StandardFrame): number => f.longIn / f.shortIn;

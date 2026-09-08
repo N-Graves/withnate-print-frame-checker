@@ -20,10 +20,7 @@ const A3 = size(297, 420);
 
 describe("fitPrintInFrame", () => {
   it("gives A4 in an A3 frame a side border of 48mm and a top border of 66mm", () => {
-    // Worked by hand from the definitions: the gap is (297-210)/2 = 43.5mm at
-    // the sides and (420-297)/2 = 61.5mm top and bottom, and the mount laps
-    // 0.16" = 4.06mm over the artwork on every edge, so the card you can see
-    // is the gap plus the overlap.
+
     const fit = fitPrintInFrame(A4, A3);
     expect(inchesToMm(fit.borderSideIn)).toBeCloseTo(47.6, 1);
     expect(inchesToMm(fit.borderTopIn)).toBeCloseTo(65.6, 1);
@@ -32,16 +29,12 @@ describe("fitPrintInFrame", () => {
   });
 
   it("reports that border as NOT uniform", () => {
-    // This is the correction to the studio version, which applies one border
-    // in both directions because it builds a scene it controls. Averaging
-    // 47.6 and 65.6 would describe a mount nobody could cut.
+
     expect(fitPrintInFrame(A4, A3).uniform).toBe(false);
   });
 
   it("cuts the aperture smaller than the paper, always", () => {
-    // The rule the whole module exists to enforce. An aperture the same size
-    // as the paper lets the print fall through the hole and shows bare
-    // backing at the edges.
+
     for (const frame of ALL_FRAMES) {
       const print = { widthIn: frame.shortIn, heightIn: frame.longIn };
       const fit = fitPrintInFrame(print, { widthIn: frame.shortIn, heightIn: frame.longIn });
@@ -54,7 +47,7 @@ describe("fitPrintInFrame", () => {
     const fit = fitPrintInFrame(A3, A3);
     expect(fit.mounted).toBe(false);
     expect(fit.overlapIn).toBe(RABBET_IN);
-    // With no mount the only card showing is the frame lip itself.
+
     expect(fit.borderSideIn).toBeCloseTo(RABBET_IN, 6);
   });
 
@@ -70,7 +63,7 @@ describe("fitPrintInFrame", () => {
 
   it("reports a uniform border when the frame and print differ equally in both directions", () => {
     const print = { widthIn: 10, heightIn: 14 };
-    const frame = { widthIn: 14, heightIn: 18 }; // +4 in both
+    const frame = { widthIn: 14, heightIn: 18 };
     expect(fitPrintInFrame(print, frame).uniform).toBe(true);
   });
 
@@ -82,14 +75,14 @@ describe("fitPrintInFrame", () => {
       plain.borderTopIn + plain.borderBottomIn,
       6,
     );
-    // The sides are untouched - weighting is vertical only.
+
     expect(weighted.borderSideIn).toBeCloseTo(plain.borderSideIn, 6);
   });
 });
 
 describe("largestPrintForBorder", () => {
   it("is the inverse of fitPrintInFrame", () => {
-    const border = 2.4; // the studio's default mat border
+    const border = 2.4;
     const print = largestPrintForBorder(A3, border);
     const fit = fitPrintInFrame(print, A3);
     expect(fit.borderSideIn).toBeCloseTo(border, 6);
@@ -97,13 +90,12 @@ describe("largestPrintForBorder", () => {
   });
 
   it("round-trips for every frame in the catalogue", () => {
-    // A table test rather than one example, because a sign error in the
-    // overlap only shows up at some sizes.
+
     for (const frame of ALL_FRAMES) {
       const opening = { widthIn: frame.shortIn, heightIn: frame.longIn };
       for (const border of [0.5, 1.15, 2.4, 2.9]) {
         const print = largestPrintForBorder(opening, border);
-        if (print.widthIn <= 0 || print.heightIn <= 0) continue; // border wider than the frame
+        if (print.widthIn <= 0 || print.heightIn <= 0) continue;
         const fit = fitPrintInFrame(print, opening);
         expect(fit.borderSideIn).toBeCloseTo(border, 6);
       }
@@ -121,9 +113,7 @@ describe("frameOutsideSize", () => {
 
 describe("against the studio's own numbers", () => {
   it("matches the shelf scene: a 6x9 print with a 0.95 inch mount", () => {
-    // framed-shelf-sage in the mockup studio: default_print_size_in 6x9,
-    // mat_border_in 0.95. Working the geometry forward from those inputs
-    // gives the frame opening the scene builds.
+
     const print = { widthIn: 6, heightIn: 9 };
     const aperture = { widthIn: 6 - 2 * MAT_OVERLAP_IN, heightIn: 9 - 2 * MAT_OVERLAP_IN };
     const opening = {
@@ -139,15 +129,14 @@ describe("against the studio's own numbers", () => {
 
 describe("the A-series and imperial families genuinely do not line up", () => {
   it("shows A4 and 10x8 are different shapes, not rounding of each other", () => {
-    // The headline claim on the page. If this ever stops being true the tool
-    // has no reason to exist.
+
     const a4 = frameById("a4")!;
     const tenByEight = frameById("10x8")!;
     expect(inchesToMm(a4.shortIn)).toBeCloseTo(210, 1);
     expect(inchesToMm(a4.longIn)).toBeCloseTo(297, 1);
     expect(inchesToMm(tenByEight.shortIn)).toBeCloseTo(203.2, 1);
     expect(inchesToMm(tenByEight.longIn)).toBeCloseTo(254, 1);
-    // A4 is narrower and longer. Not interchangeable.
+
     expect(a4.shortIn).toBeGreaterThan(tenByEight.shortIn);
     expect(a4.longIn).toBeGreaterThan(tenByEight.longIn);
   });

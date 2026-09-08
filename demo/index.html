@@ -4,18 +4,28 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Print &amp; frame checker — demo</title>
-    <!--
-      This page is the development harness AND the integration contract. The
-      markup inside [data-pfc] is what the site's page module needs to emit;
-      the script finds these hooks and fills them in.
 
-      demo.css exists only to stand in for the site's own classes (.btn, .fam,
-      .glass, .eyebrow, .lede, .sw, .vh) so this page is readable on its own.
-      It is NOT part of the deliverable and must not be copied to the site,
-      which already defines all of them.
-    -->
     <link rel="stylesheet" href="demo.css" />
     <link rel="stylesheet" href="../dist/print-frame-checker.css" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Print and frame size checker",
+        "applicationCategory": "MultimediaApplication",
+        "operatingSystem": "Any modern browser",
+        "browserRequirements": "Requires JavaScript",
+        "isAccessibleForFree": true,
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "GBP" },
+        "featureList": [
+          "Largest print size at 300, 200 and 150 DPI",
+          "Which standard UK frame sizes fit, A6 to A0 and 6x4 to 40x30 inches",
+          "Mount border and aperture measurements for a chosen frame",
+          "What a file's declared DPI actually means"
+        ],
+        "permissions": "None. The file is read in the browser and never uploaded."
+      }
+    </script>
   </head>
   <body>
     <main class="wrap">

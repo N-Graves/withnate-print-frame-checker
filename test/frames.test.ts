@@ -28,8 +28,7 @@ describe("the catalogue", () => {
 
 describe("A-series", () => {
   it("matches ISO 216 to the millimetre", () => {
-    // These are definitions, not measurements, so they are exact and this is
-    // a genuine external check rather than a restatement of the source.
+
     const expected: Record<string, [number, number]> = {
       a6: [105, 148],
       a5: [148, 210],
@@ -47,8 +46,7 @@ describe("A-series", () => {
   });
 
   it("shares one ratio across every size", () => {
-    // The property that makes A-series art drop into any A-series frame with
-    // no crop. If a size were typed wrong this is what would catch it.
+
     for (const f of A_SERIES) expect(frameRatio(f)).toBeCloseTo(Math.SQRT2, 2);
   });
 
@@ -71,8 +69,7 @@ describe("imperial", () => {
   });
 
   it("does not share a single ratio, unlike the A-series", () => {
-    // Worth pinning: it is the reason a print cut for 10x8 does not drop into
-    // a 12x8 frame, and people expect imperial to behave like A-series.
+
     const ratios = new Set(IMPERIAL.map((f) => frameRatio(f).toFixed(3)));
     expect(ratios.size).toBeGreaterThan(1);
   });

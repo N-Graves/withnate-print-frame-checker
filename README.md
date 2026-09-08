@@ -77,6 +77,34 @@ decided by load order.
 `demo/demo.css` is stand-ins for those site classes so the demo page is readable on its own. It is
 not part of the deliverable and must not be copied across.
 
+## Structured data
+
+`demo/index.html` carries a static JSON-LD `WebApplication` block. It is worth having and it is
+worth knowing why it is safe here:
+
+- The site's own `scripts/check.mjs` fails a page with a second inline `<script>`, **but its regex
+  explicitly exempts `type="application/ld+json"`** — checked in that file rather than assumed.
+- The site's `scripts/seo.mjs` requires structured data to parse and to carry an `@type`, so a
+  malformed block is a build failure rather than a silent no-op.
+
+It claims nothing that is not true: no `aggregateRating`, no review count, no price beyond the free
+offer. A fabricated rating is a Google manual action, and there is nothing to rate yet.
+
+## Security posture
+
+There is no server, no upload, no storage and no network call, so most of the usual surface does not
+exist. What is left is the DOM, and the rule is mechanical rather than a matter of care:
+
+- **Everything is built with `createElement` and `textContent`.** There is no `innerHTML`, no
+  `insertAdjacentHTML` and no template interpolation into markup anywhere in `src/`. Filenames and
+  format names are never echoed to the page at all — the only strings that reach the DOM are the
+  tool's own literals plus formatted numbers.
+- **No `maxBytes` cap on the intake, deliberately.** Only the first 64KB of the file is ever sliced
+  and read, so a 200MB TIFF costs the same as a thumbnail. A size cap here would reject legitimate
+  large photographs while protecting against nothing.
+- Every parser input is treated as hostile in the core, not here: bounds, entry and component caps
+  live in `@nasdigitaluk/withnate-tool-core`, which is where the byte reading happens.
+
 ## Known limits
 
 - **JPEG density is read from the JFIF segment only, not Exif.** A photo straight off a phone

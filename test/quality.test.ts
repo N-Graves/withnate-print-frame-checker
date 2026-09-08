@@ -12,8 +12,7 @@ import {
 
 describe("maxPrintAt", () => {
   it("matches the reference figure used elsewhere in this project", () => {
-    // 12x16" at 300 DPI is 3600x4800px, quoted in the image pipeline's own
-    // notes. An external check rather than a restatement of the formula.
+
     const s = maxPrintAt({ width: 3600, height: 4800 }, 300);
     expect(s.widthIn).toBeCloseTo(12, 6);
     expect(s.heightIn).toBeCloseTo(16, 6);
@@ -51,25 +50,21 @@ describe("orientation", () => {
 
 describe("assessFrame", () => {
   it("uses the limiting edge for density, not the flattering one", () => {
-    // 3000x2000 in a landscape A3 opening of 16.5354 x 11.6929 inches.
-    // Across the width that is 181 DPI; down the height it is 171. Filling
-    // the frame means the height runs out first, so 171 is what you print at.
-    // Taking the larger number, or the mean, overstates the result.
+
     const a = assessFrame({ width: 3000, height: 2000 }, frameById("a3")!);
     expect(a.dpi).toBeCloseTo(171.0, 0);
     expect(a.band).toBe("acceptable");
   });
 
   it("measures the crop when the aspects disagree", () => {
-    // A 3:2 image filling a 4:3 frame keeps 4/3 divided by 3/2 of itself.
+
     const a = assessFrame({ width: 3000, height: 2000 }, frameById("8x6")!);
     expect(a.cropFraction).toBeCloseTo(1 - (4 / 3) / 1.5, 4);
     expect(a.cleanFit).toBe(false);
   });
 
   it("calls an A-series image in an A-series frame a clean fit", () => {
-    // Every A size shares the 1:root-2 ratio, so this must come out as no
-    // meaningful crop for any of them.
+
     for (const frame of ALL_FRAMES.filter((f) => f.family === "a-series")) {
       const a = assessFrame({ width: 2480, height: 3508 }, frame);
       expect(a.cleanFit).toBe(true);
@@ -84,8 +79,7 @@ describe("assessFrame", () => {
   });
 
   it("never reports a negative crop", () => {
-    // A sign error here would read as the frame adding image rather than
-    // removing it, which is nonsense a user would rightly not believe.
+
     for (const frame of ALL_FRAMES) {
       for (const px of [
         { width: 4000, height: 3000 },
@@ -132,8 +126,7 @@ describe("describeAspect", () => {
   });
 
   it("flags an exact ratio that is true but useless", () => {
-    // A4 at 300 DPI reduces to 620:877, which is correct and tells a person
-    // nothing. The flag is how the interface knows to show the name instead.
+
     const d = describeAspect({ width: 2480, height: 3508 });
     expect(d.exact).toEqual([620, 877]);
     expect(d.exactIsUseful).toBe(false);
