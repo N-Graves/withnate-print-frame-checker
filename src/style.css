@@ -1,0 +1,215 @@
+/*
+ * Print and frame checker styles.
+ *
+ * Every rule is namespaced .pfc- so this can be dropped into the site without
+ * touching anything already there. It deliberately does NOT define .btn,
+ * .glass, .fam, .eyebrow or .lede - those belong to the site's stylesheet and
+ * redefining them here would mean two sources of truth for the same class and
+ * a fight decided by load order. The demo page carries its own stand-ins.
+ *
+ * Colours come from the site's layer-2 semantic tokens with fallbacks, so the
+ * tool inherits the theme where there is one and still reads correctly where
+ * there is not.
+ */
+
+.pfc-section {
+  margin: 2.5rem 0 0;
+}
+
+.pfc-h {
+  font-family: var(--f-display, system-ui, sans-serif);
+  font-size: 1.15rem;
+  margin: 0 0 0.75rem;
+  color: var(--text, #33170b);
+}
+
+.pfc-headline h2 {
+  font-family: var(--f-display, system-ui, sans-serif);
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  margin: 0.25rem 0 0.5rem;
+  color: var(--text, #33170b);
+}
+
+.pfc-note {
+  color: var(--text-dim, #6b4230);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+/* Wide content scrolls inside its own box rather than pushing the page out. */
+.pfc-table-wrap {
+  overflow-x: auto;
+}
+
+.pfc-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.pfc-table th,
+.pfc-table td {
+  text-align: left;
+  padding: 0.6rem 0.75rem 0.6rem 0;
+  border-bottom: 1px solid var(--line, rgba(51, 23, 11, 0.14));
+  vertical-align: top;
+}
+
+.pfc-table th {
+  font-family: var(--f-hud, ui-monospace, monospace);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-faint, #7d5a46);
+  font-weight: 600;
+}
+
+.pfc-group {
+  margin: 1.5rem 0 0;
+}
+
+.pfc-group-h {
+  font-family: var(--f-hud, ui-monospace, monospace);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-faint, #7d5a46);
+  margin: 0 0 0.6rem;
+}
+
+.pfc-frames {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.6rem;
+}
+
+.pfc-frame {
+  display: grid;
+  gap: 0.25rem;
+  text-align: left;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--line, rgba(51, 23, 11, 0.14));
+  border-radius: 12px;
+  background: var(--surface-2, #f6ead8);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+/* Colour is not the only signal: the band name is spelled out in the chip. */
+.pfc-frame:hover,
+.pfc-frame:focus-visible {
+  border-color: var(--accent, #832305);
+  outline: none;
+}
+
+.pfc-frame:focus-visible {
+  box-shadow: 0 0 0 3px var(--ring, rgba(131, 35, 5, 0.3));
+}
+
+.pfc-frame-name {
+  font-family: var(--f-display, system-ui, sans-serif);
+  font-size: 1.05rem;
+}
+
+.pfc-frame-size {
+  color: var(--text-dim, #6b4230);
+  font-size: 0.9rem;
+}
+
+.pfc-frame-detail {
+  color: var(--text-faint, #7d5a46);
+  font-size: 0.82rem;
+}
+
+.pfc-frame .fam {
+  justify-self: start;
+}
+
+.pfc-detail-host:empty {
+  display: none;
+}
+
+.pfc-detail {
+  margin: 1.25rem 0 0;
+  padding: 1.1rem 1.25rem;
+  border-radius: 16px;
+}
+
+.pfc-opt {
+  font-family: var(--f-hud, ui-monospace, monospace);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent, #832305);
+  margin: 1.1rem 0 0.4rem;
+}
+
+.pfc-line {
+  display: grid;
+  grid-template-columns: minmax(140px, 0.9fr) minmax(120px, 1fr);
+  gap: 0.2rem 1rem;
+  padding: 0.35rem 0;
+  border-bottom: 1px solid var(--line-soft, rgba(51, 23, 11, 0.08));
+}
+
+.pfc-line-k {
+  color: var(--text-dim, #6b4230);
+  font-size: 0.9rem;
+}
+
+.pfc-line-v {
+  font-variant-numeric: tabular-nums;
+}
+
+.pfc-line .pfc-note {
+  grid-column: 1 / -1;
+  font-size: 0.82rem;
+}
+
+@media (max-width: 30rem) {
+  .pfc-line {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ------------------------------------------------------------ the intake */
+
+.pfc-intake {
+  border: 2px dashed var(--line, rgba(51, 23, 11, 0.22));
+  border-radius: 16px;
+  padding: clamp(1.25rem, 5vw, 2.25rem);
+  text-align: center;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.pfc-intake.is-dragging {
+  border-color: var(--accent, #832305);
+  background: var(--surface-2, #f6ead8);
+}
+
+.pfc-error:empty {
+  display: none;
+}
+
+.pfc-error {
+  margin: 0.9rem 0 0;
+  padding: 0.7rem 0.9rem;
+  border-radius: 10px;
+  border: 1px solid var(--accent, #832305);
+  color: var(--accent, #832305);
+  font-size: 0.92rem;
+}
+
+.pfc-units {
+  display: flex;
+  gap: 0.4rem;
+  justify-content: flex-end;
+  margin: 1.5rem 0 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pfc-intake {
+    transition: none;
+  }
+}

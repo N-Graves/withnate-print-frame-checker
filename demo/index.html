@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Print &amp; frame checker — demo</title>
+    <!--
+      This page is the development harness AND the integration contract. The
+      markup inside [data-pfc] is what the site's page module needs to emit;
+      the script finds these hooks and fills them in.
+
+      demo.css exists only to stand in for the site's own classes (.btn, .fam,
+      .glass, .eyebrow, .lede, .sw, .vh) so this page is readable on its own.
+      It is NOT part of the deliverable and must not be copied to the site,
+      which already defines all of them.
+    -->
+    <link rel="stylesheet" href="demo.css" />
+    <link rel="stylesheet" href="../dist/print-frame-checker.css" />
+  </head>
+  <body>
+    <main class="wrap">
+      <p class="eyebrow">Free tool</p>
+      <h1>How big can you print it?</h1>
+      <p class="lede">
+        Drop in an image and find out the largest you can print it, which standard UK frames
+        it fits, and how much mount you need. Nothing is uploaded — the file never leaves
+        your device.
+      </p>
+
+      <div data-pfc class="pfc">
+        <div data-pfc-intake class="pfc-intake">
+          <label class="btn" for="pfc-file">Choose an image</label>
+          <input
+            id="pfc-file"
+            type="file"
+            accept="image/png,image/jpeg,image/gif,image/webp"
+            class="vh"
+          />
+          <p class="pfc-note">…or drop one here, or paste from the clipboard.</p>
+
+          <details class="pfc-manual">
+            <summary>Type the dimensions instead</summary>
+            <p class="pfc-note">
+              If you already know the pixel size — from your camera, or a file listing.
+            </p>
+            <p>
+              <label for="pfc-w">Width</label>
+              <input id="pfc-w" data-pfc-w type="number" min="1" inputmode="numeric" />
+              <label for="pfc-h">Height</label>
+              <input id="pfc-h" data-pfc-h type="number" min="1" inputmode="numeric" />
+              <button type="button" data-pfc-manual class="btn">Check</button>
+            </p>
+          </details>
+        </div>
+
+        <p data-pfc-error class="pfc-error" role="status"></p>
+
+        <div class="pfc-units" data-pfc-unit>
+          <button type="button" class="sw" data-unit="cm" aria-pressed="true">cm</button>
+          <button type="button" class="sw" data-unit="in" aria-pressed="false">inches</button>
+        </div>
+
+        <div data-pfc-results></div>
+      </div>
+
+      <noscript>
+        <p class="pfc-note">
+          This tool needs JavaScript, because the whole point is that it works on your own
+          machine rather than sending your file anywhere.
+        </p>
+      </noscript>
+    </main>
+
+    <script src="../dist/print-frame-checker.js" defer></script>
+  </body>
+</html>
