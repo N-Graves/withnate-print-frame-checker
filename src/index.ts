@@ -1,19 +1,3 @@
-/**
- * Print and frame checker - entry point.
- *
- * Loaded as a plain script on one page and must do nothing on every other, so
- * everything hangs off finding the root element and bailing quietly when it
- * is not there.
- *
- * The markup is NOT built here. The page ships real, readable HTML and this
- * fills it in, because the site's rule is that content must never need
- * JavaScript to become visible. With scripting off a visitor still sees a
- * file input and an explanation; they simply do not get an answer.
- *
- * Nothing is uploaded, nothing is stored, and no request leaves the page.
- * Only the first 64KB of the chosen file is ever read.
- */
-
 import {
   attachIntake,
   measureImage,
@@ -30,9 +14,8 @@ interface State {
   unit: LengthUnit;
 }
 
-/** Below this a "print" is a thumbnail and the answer is not worth giving. */
 const MIN_USEFUL_EDGE = 32;
-/** Above this something has gone wrong in whatever produced the file. */
+
 const MAX_SANE_EDGE = 100_000;
 
 mount("[data-pfc]", ({ root }) => {
@@ -74,8 +57,6 @@ mount("[data-pfc]", ({ root }) => {
     draw();
   };
 
-  // ------------------------------------------------------------ from a file
-
   attachIntake(intake, {
     onReject: showError,
     onFile: (file) => {
@@ -92,15 +73,11 @@ mount("[data-pfc]", ({ root }) => {
           accept({ width: m.width, height: m.height }, m.density);
         })
         .catch(() => {
-          // Reading a local slice essentially cannot fail, but a file that
-          // vanished between the pick and the read would land here, and a
-          // silent nothing looks identical to a broken tool.
+
           showError("That file could not be opened. Try choosing it again.");
         });
     },
   });
-
-  // ------------------------------------ typed dimensions, for people who know
 
   const wInput = root.querySelector<HTMLInputElement>("[data-pfc-w]");
   const hInput = root.querySelector<HTMLInputElement>("[data-pfc-h]");
@@ -113,13 +90,10 @@ mount("[data-pfc]", ({ root }) => {
         showError("Put a pixel width and height in both boxes.");
         return;
       }
-      // Typed dimensions carry no file, so there is no declared density to
-      // report. Passing null is the honest answer rather than assuming 72.
+
       accept({ width: w, height: h }, null);
     });
   }
-
-  // ------------------------------------------------------------- unit toggle
 
   const unitHost = root.querySelector<HTMLElement>("[data-pfc-unit]");
   if (unitHost) {

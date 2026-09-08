@@ -371,9 +371,6 @@
       overlapIn,
       mounted,
       uniform: Math.abs(borderSideIn - borderTopIn) <= UNIFORM_TOLERANCE_IN,
-      // A negative border means the paper is wider than the frame opening.
-      // The top border is checked rather than the bottom because weighting
-      // moves card from one to the other and the top runs out first.
       fits: borderSideIn >= 0 && borderTopIn >= 0
     };
   };
@@ -410,6 +407,7 @@
       cleanFit: cropFraction < CLEAN_FIT_CROP
     };
   };
+  var assessFrames = (px, frames) => frames.map((f) => assessFrame(px, f)).sort((a, b) => b.frame.longIn * b.frame.shortIn - a.frame.longIn * a.frame.shortIn);
   var NAMED_RATIOS = [
     { name: "1:1 square", value: 1 },
     { name: "5:4", value: 1.25 },
@@ -521,7 +519,7 @@
   };
   var dpiTruth = (px, declared, unit) => {
     const body = [];
-    if (declared) {
+    if (declared && Number.isFinite(declared.x) && declared.x > 0) {
       const dpi = roundTo(declared.x, 0);
       const at2 = maxPrintAt(px, declared.x);
       body.push(
@@ -590,7 +588,7 @@
     h(
       "div",
       { class: "pfc-frames" },
-      ...frames.map((f) => assessFrame(px, f)).sort((a, b) => b.frame.longIn * b.frame.shortIn - a.frame.longIn * a.frame.shortIn).map((a) => frameRow(a, unit, onPick))
+      ...assessFrames(px, frames).map((a) => frameRow(a, unit, onPick))
     )
   );
   var nextSizeDown = (frame) => {
@@ -626,8 +624,6 @@
       if (fit.fits) {
         const smallerAssessment = assessFrame(px, smaller);
         blocks.push(
-          // No article before the label: "a A4" is wrong and "an 10 x 8" is
-          // worse, and picking correctly needs the spoken form, not the spelling.
           h("h5", { class: "pfc-opt" }, `Mounted \u2014 ${smaller.label} print`),
           line("Order a print at", formatSize(inner.widthIn, inner.heightIn, unit)),
           line(
@@ -652,9 +648,6 @@
       h(
         "p",
         { class: "pfc-note" },
-        // Always millimetres, whatever unit is selected. These are fixed
-        // constants a few millimetres across; in centimetres they round to
-        // "0.4" and in inches to "0.2", and neither is a number anyone can cut to.
         `A mount laps ${formatLength(MAT_OVERLAP_IN, "mm")} over the artwork on every edge, and a frame with no mount laps ${formatLength(RABBET_IN, "mm")}. Cut the hole the same size as the paper and the print falls through it.`
       )
     );
@@ -671,8 +664,6 @@
       headline(px, unit),
       section(
         "How big can I print it?",
-        // The table scrolls inside its own box. The site's rule is that the page
-        // body never scrolls sideways, and four columns will not fit a phone.
         h("div", { class: "pfc-table-wrap" }, sizeTable(px, unit))
       ),
       dpiTruth(px, opts.declaredDensity, unit),

@@ -1,13 +1,3 @@
-/**
- * How big a pixel count can print, and how well it suits a given frame.
- *
- * The thresholds are viewing-distance judgements, not physical constants. 300
- * DPI is the arm's-length standard - photographs, books, anything held. Large
- * prints are looked at from across a room and 150 to 200 genuinely holds up
- * there, because the eye cannot resolve the dots at that distance. Quoting 300
- * for a poster is how people get told their file is unusable when it is fine.
- */
-
 import { aspectRatio } from "@nasdigitaluk/withnate-tool-core";
 import type { StandardFrame } from "./frames.js";
 import type { SizeIn } from "./geometry.js";
@@ -32,7 +22,6 @@ export const bandFor = (dpi: number): QualityBand =>
 export const noteFor = (band: QualityBand): string =>
   BANDS.find((b) => b.band === band)?.note ?? "";
 
-/** The largest this many pixels can print at a given density. */
 export const maxPrintAt = (px: Pixels, dpi: number): SizeIn => ({
   widthIn: px.width / dpi,
   heightIn: px.height / dpi,
@@ -40,7 +29,6 @@ export const maxPrintAt = (px: Pixels, dpi: number): SizeIn => ({
 
 export const isLandscape = (px: Pixels): boolean => px.width >= px.height;
 
-/** Turn a frame the same way up as the image. Frames hang either way. */
 export const orientFrame = (frame: StandardFrame, landscape: boolean): SizeIn =>
   landscape
     ? { widthIn: frame.longIn, heightIn: frame.shortIn }
@@ -48,29 +36,19 @@ export const orientFrame = (frame: StandardFrame, landscape: boolean): SizeIn =>
 
 export interface FrameAssessment {
   frame: StandardFrame;
-  /** The frame's opening, turned to match the image. */
+
   openingIn: SizeIn;
-  /** Density you would actually be printing at, filling this frame. */
+
   dpi: number;
   band: QualityBand;
-  /** Fraction of the image lost to the crop, 0 to 1. */
+
   cropFraction: number;
-  /** True when the aspects match closely enough that the crop is invisible. */
+
   cleanFit: boolean;
 }
 
-/** Below this, the crop is a sliver off one edge and nobody would notice. */
 const CLEAN_FIT_CROP = 0.02;
 
-/**
- * Assess one frame.
- *
- * Density is `min(px.width / openingWidth, px.height / openingHeight)` - the
- * limiting edge. Filling a frame means scaling until both edges are covered
- * and cropping the overhang, so the edge with fewer pixels per inch sets the
- * quality. Averaging the two, or taking the better one, quietly overstates
- * what a mismatched aspect will actually look like.
- */
 export const assessFrame = (px: Pixels, frame: StandardFrame): FrameAssessment => {
   const openingIn = orientFrame(frame, isLandscape(px));
   const dpi = Math.min(px.width / openingIn.widthIn, px.height / openingIn.heightIn);
@@ -90,7 +68,6 @@ export const assessFrame = (px: Pixels, frame: StandardFrame): FrameAssessment =
   };
 };
 
-/** Assess every frame, largest first, so the best available size leads. */
 export const assessFrames = (
   px: Pixels,
   frames: readonly StandardFrame[],
@@ -99,14 +76,11 @@ export const assessFrames = (
     .map((f) => assessFrame(px, f))
     .sort((a, b) => b.frame.longIn * b.frame.shortIn - a.frame.longIn * a.frame.shortIn);
 
-// ------------------------------------------------------------ aspect naming
-
 interface NamedRatio {
   name: string;
   value: number;
 }
 
-/** Ratios worth naming, long edge over short. */
 const NAMED_RATIOS: readonly NamedRatio[] = [
   { name: "1:1 square", value: 1 },
   { name: "5:4", value: 1.25 },
@@ -119,16 +93,15 @@ const NAMED_RATIOS: readonly NamedRatio[] = [
 ];
 
 export interface AspectDescription {
-  /** Exact reduced ratio. Can be enormous and useless, which is the caller's problem. */
+
   exact: [number, number];
-  /** True when the exact ratio is small enough to be worth showing. */
+
   exactIsUseful: boolean;
   nearestName: string;
-  /** How far off the named ratio, as a fraction. Zero is an exact match. */
+
   nearestError: number;
 }
 
-/** An exact ratio with a term above this is noise rather than information. */
 const USEFUL_RATIO_TERM = 40;
 
 export const describeAspect = (px: Pixels): AspectDescription => {

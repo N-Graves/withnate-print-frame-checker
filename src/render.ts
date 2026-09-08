@@ -1,19 +1,10 @@
-/**
- * Turning the numbers into a page.
- *
- * Everything is built with createElement and textContent rather than
- * innerHTML. Partly because the site's own scripts do, partly because it
- * removes the question of escaping entirely - the only strings that reach the
- * DOM from outside this module are a filename and a format name, and neither
- * gets a chance to be markup.
- */
-
 import { formatLength, formatSize, roundTo, type LengthUnit } from "@nasdigitaluk/withnate-tool-core";
 import { ALL_FRAMES, A_SERIES, IMPERIAL, SQUARE, type StandardFrame } from "./frames.js";
 import { MAT_OVERLAP_IN, RABBET_IN, fitPrintInFrame, type SizeIn } from "./geometry.js";
 import {
   BANDS,
   assessFrame,
+  assessFrames,
   describeAspect,
   maxPrintAt,
   noteFor,
@@ -51,7 +42,6 @@ const BAND_LABEL: Record<QualityBand, string> = {
   poor: "Too small",
 };
 
-/** Maps onto the site's existing chip colours rather than inventing a palette. */
 const BAND_CLASS: Record<QualityBand, string> = {
   excellent: "fam",
   good: "fam fam-4",
@@ -62,22 +52,10 @@ const BAND_CLASS: Record<QualityBand, string> = {
 const section = (title: string, ...children: Array<Node | string | null>): HTMLElement =>
   h("section", { class: "pfc-section" }, h("h3", { class: "pfc-h" }, title), ...children);
 
-/**
- * Both units, selected one first.
- *
- * Summary figures show metric and imperial together on purpose - UK framing is
- * genuinely mixed, paper is ordered in millimetres and frames are sold in
- * inches, and making someone convert in their head to check a size is the
- * error this tool exists to prevent. The toggle controls which leads, so it
- * still visibly does something here rather than appearing inert in the most
- * prominent place on the page.
- */
 const bothUnits = (s: SizeIn, unit: LengthUnit): string => {
   const other: LengthUnit = unit === "in" ? "cm" : "in";
   return `${formatSize(s.widthIn, s.heightIn, unit)}  ·  ${formatSize(s.widthIn, s.heightIn, other)}`;
 };
-
-// ------------------------------------------------------------------ blocks
 
 const headline = (px: Pixels, unit: LengthUnit): HTMLElement => {
   const best = maxPrintAt(px, 300);
@@ -125,21 +103,13 @@ const sizeTable = (px: Pixels, unit: LengthUnit): HTMLElement => {
   );
 };
 
-/**
- * The honest DPI answer.
- *
- * This is the section the tool exists for. "Convert my image to 300 DPI" is
- * one of the most-searched image tasks there is, and the tools that answer it
- * edit a tag and change nothing. Saying so plainly, with the visitor's own
- * numbers in the sentence, is more use than doing it for them.
- */
 const dpiTruth = (
   px: Pixels,
   declared: { x: number; y: number } | null,
   unit: LengthUnit,
 ): HTMLElement => {
   const body: Node[] = [];
-  if (declared) {
+  if (declared && Number.isFinite(declared.x) && declared.x > 0) {
     const dpi = roundTo(declared.x, 0);
     const at = maxPrintAt(px, declared.x);
     body.push(
@@ -196,8 +166,6 @@ const shape = (px: Pixels): HTMLElement => {
   );
 };
 
-// ------------------------------------------------------------- frame lists
-
 const frameRow = (
   a: FrameAssessment,
   unit: LengthUnit,
@@ -233,22 +201,10 @@ const frameGroup = (
     h(
       "div",
       { class: "pfc-frames" },
-      ...frames
-        .map((f) => assessFrame(px, f))
-        .sort((a, b) => b.frame.longIn * b.frame.shortIn - a.frame.longIn * a.frame.shortIn)
-        .map((a) => frameRow(a, unit, onPick)),
+      ...assessFrames(px, frames).map((a) => frameRow(a, unit, onPick)),
     ),
   );
 
-/**
- * The mount detail for one chosen frame.
- *
- * Side and top borders are reported separately and deliberately. They are
- * usually different - A4 in an A3 frame is 48mm at the sides and 66mm top and
- * bottom - and a single averaged figure would describe a mount nobody could
- * cut.
- */
-/** The largest standard size in the same family that is genuinely smaller. */
 const nextSizeDown = (frame: StandardFrame): StandardFrame | undefined => {
   const area = frame.shortIn * frame.longIn;
   return ALL_FRAMES.filter((f) => f.family === frame.family && f.shortIn * f.longIn < area).sort(
@@ -274,7 +230,6 @@ export const mountDetail = (
     line("Frame opening", formatSize(a.openingIn.widthIn, a.openingIn.heightIn, unit)),
   ];
 
-  // Option one: print to the frame's own size, no mount.
   blocks.push(
     h("h5", { class: "pfc-opt" }, "Fill the frame"),
     line("Order a print at", formatSize(a.openingIn.widthIn, a.openingIn.heightIn, unit)),
@@ -285,9 +240,6 @@ export const mountDetail = (
     ),
   );
 
-  // Option two: the next standard size down, with the card that leaves. This
-  // is the case worth showing, because the two borders come out different and
-  // that is the thing every other calculator gets wrong or hides.
   const smaller = nextSizeDown(a.frame);
   if (smaller) {
     const inner = orientFrame(smaller, a.openingIn.widthIn >= a.openingIn.heightIn);
@@ -295,8 +247,7 @@ export const mountDetail = (
     if (fit.fits) {
       const smallerAssessment = assessFrame(px, smaller);
       blocks.push(
-        // No article before the label: "a A4" is wrong and "an 10 x 8" is
-        // worse, and picking correctly needs the spoken form, not the spelling.
+
         h("h5", { class: "pfc-opt" }, `Mounted — ${smaller.label} print`),
         line("Order a print at", formatSize(inner.widthIn, inner.heightIn, unit)),
         line(
@@ -322,15 +273,11 @@ export const mountDetail = (
     h(
       "p",
       { class: "pfc-note" },
-      // Always millimetres, whatever unit is selected. These are fixed
-      // constants a few millimetres across; in centimetres they round to
-      // "0.4" and in inches to "0.2", and neither is a number anyone can cut to.
+
       `A mount laps ${formatLength(MAT_OVERLAP_IN, "mm")} over the artwork on every edge, and a frame with no mount laps ${formatLength(RABBET_IN, "mm")}. Cut the hole the same size as the paper and the print falls through it.`,
     ),
   );
 };
-
-// ------------------------------------------------------------------- entry
 
 export interface ResultsOptions {
   px: Pixels;
@@ -351,8 +298,7 @@ export const renderResults = (opts: ResultsOptions): HTMLElement => {
     headline(px, unit),
     section(
       "How big can I print it?",
-      // The table scrolls inside its own box. The site's rule is that the page
-      // body never scrolls sideways, and four columns will not fit a phone.
+
       h("div", { class: "pfc-table-wrap" }, sizeTable(px, unit)),
     ),
     dpiTruth(px, opts.declaredDensity, unit),
@@ -371,5 +317,3 @@ export const renderResults = (opts: ResultsOptions): HTMLElement => {
     ),
   );
 };
-
-export { orientFrame };
