@@ -500,6 +500,27 @@
     }
   };
 
+  // node_modules/@nasdigitaluk/withnate-tool-core/dist/dom.js
+  var h = (tag, attrs = {}, ...children) => {
+    const node = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs)) {
+      if (v === false || v === null || v === void 0)
+        continue;
+      if (k === "class")
+        node.className = String(v);
+      else if (v === true)
+        node.setAttribute(k, "");
+      else
+        node.setAttribute(k, String(v));
+    }
+    for (const c of children) {
+      if (c === null || c === void 0)
+        continue;
+      node.append(typeof c === "string" ? document.createTextNode(c) : c);
+    }
+    return node;
+  };
+
   // src/frames.ts
   var fromMm = (id, label, w, h2) => ({
     id,
@@ -649,20 +670,6 @@
   };
 
   // src/render.ts
-  var h = (tag, attrs = {}, ...children) => {
-    const node = document.createElement(tag);
-    for (const [k, v] of Object.entries(attrs)) {
-      if (v === false || v === void 0) continue;
-      if (k === "class") node.className = String(v);
-      else if (v === true) node.setAttribute(k, "");
-      else node.setAttribute(k, String(v));
-    }
-    for (const c of children) {
-      if (c === null || c === void 0) continue;
-      node.append(typeof c === "string" ? document.createTextNode(c) : c);
-    }
-    return node;
-  };
   var BAND_LABEL = {
     excellent: "Excellent",
     good: "Good",

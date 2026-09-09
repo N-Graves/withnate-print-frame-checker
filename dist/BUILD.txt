@@ -1,5 +1,5 @@
 withnate-print-frame-checker v0.1.0
-js   33859 bytes
+js   33977 bytes
 css  3836 bytes
 
 Drop both into the site's assets directory and reference them from the
