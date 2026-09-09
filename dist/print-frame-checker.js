@@ -75,6 +75,16 @@
     const h2 = roundTo(convertFromInches(hIn, unit), dp);
     return unit === "in" ? `${w} \xD7 ${h2}"` : `${w} \xD7 ${h2} ${unit}`;
   };
+  var formatBytes = (n) => {
+    if (!Number.isFinite(n) || n < 0)
+      return "\u2014";
+    if (n < 1e3)
+      return `${Math.round(n)} B`;
+    const kb = Math.round(n / 1e3);
+    if (kb < 1e3)
+      return `${kb} KB`;
+    return `${roundTo(n / 1e6, 1)} MB`;
+  };
   var gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
   var aspectRatio = (width, height) => {
     const w = Math.round(width);
@@ -412,7 +422,6 @@
 
   // node_modules/@nasdigitaluk/withnate-tool-core/dist/intake.js
   var DEFAULT_DRAGGING_CLASS = "is-dragging";
-  var humanBytes = (n) => n >= 1024 * 1024 ? `${Math.round(n / (1024 * 1024))}MB` : `${Math.round(n / 1024)}KB`;
   var attachIntake = (root, opts) => {
     const draggingClass = opts.draggingClass ?? DEFAULT_DRAGGING_CLASS;
     const input = root.querySelector('input[type="file"]');
@@ -420,7 +429,7 @@
       if (!file)
         return;
       if (opts.maxBytes && file.size > opts.maxBytes) {
-        opts.onReject?.(`That file is ${humanBytes(file.size)}. The limit here is ${humanBytes(opts.maxBytes)}.`);
+        opts.onReject?.(`That file is ${formatBytes(file.size)}. The limit here is ${formatBytes(opts.maxBytes)}.`);
         return;
       }
       if (file.size === 0) {
