@@ -1,4 +1,4 @@
-import { formatLength, formatSize, roundTo, type LengthUnit } from "@nasdigitaluk/withnate-tool-core";
+import { formatLength, formatSize, h, roundTo, type LengthUnit } from "@nasdigitaluk/withnate-tool-core";
 import { ALL_FRAMES, A_SERIES, IMPERIAL, SQUARE, type StandardFrame } from "./frames.js";
 import { MAT_OVERLAP_IN, RABBET_IN, fitPrintInFrame, type SizeIn } from "./geometry.js";
 import {
@@ -13,27 +13,6 @@ import {
   type Pixels,
   type QualityBand,
 } from "./quality.js";
-
-type Attrs = Record<string, string | boolean | number>;
-
-export const h = (
-  tag: string,
-  attrs: Attrs = {},
-  ...children: Array<Node | string | null | undefined>
-): HTMLElement => {
-  const node = document.createElement(tag);
-  for (const [k, v] of Object.entries(attrs)) {
-    if (v === false || v === undefined) continue;
-    if (k === "class") node.className = String(v);
-    else if (v === true) node.setAttribute(k, "");
-    else node.setAttribute(k, String(v));
-  }
-  for (const c of children) {
-    if (c === null || c === undefined) continue;
-    node.append(typeof c === "string" ? document.createTextNode(c) : c);
-  }
-  return node;
-};
 
 const BAND_LABEL: Record<QualityBand, string> = {
   excellent: "Excellent",
